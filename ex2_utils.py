@@ -14,7 +14,7 @@ def conv1D(inSignal: np.ndarray, kernel1: np.ndarray) -> np.ndarray:
 
     ans = np.zeros(inSignal.size + kernel1.size - 1)  # the res vector will be in this size
 
-    for i in range(ans.size):  # from the starting of new_signal to the last element of inSignal
+    for i in range(ans.size):
         ans[i] = np.dot(newSignal[i: i + addZeros + 1], revKernel1)
 
     return ans
