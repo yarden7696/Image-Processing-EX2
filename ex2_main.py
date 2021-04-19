@@ -6,10 +6,8 @@ from matala2 import ex2_utils
 
 
 def conv1Demo():
-
-    krnl = np.array([1,2,1])/4
-    sgnl = np.array([1, 2, 3])
-    print("numpy: ", np.convolve(sgnl, krnl, "full"), " my result: ", conv1D(sgnl, krnl))
+    print("numpy: ", np.convolve(np.array([1, 2, 3]), np.array([1,2,1])/4, "full"),
+          " my result: ", conv1D(np.array([1, 2, 3]), np.array([1,2,1])/4))
 
 
 def conv2Demo():
