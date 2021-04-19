@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 
+
 def conv1D(inSignal: np.ndarray, kernel1: np.ndarray) -> np.ndarray:
     """
  Convolve a 1-D array with a given kernel
@@ -15,7 +16,7 @@ def conv1D(inSignal: np.ndarray, kernel1: np.ndarray) -> np.ndarray:
     ans = np.zeros(inSignal.size + kernel1.size - 1)  # the res vector will be in this size
 
     for i in range(ans.size):
-        ans[i] = np.dot(newSignal[i: i + addZeros + 1], revKernel1)
+        ans[i] = np.dot(newSignal[i: i + (kernel1.size - 1) + 1], revKernel1)
 
     return ans
 
@@ -28,12 +29,12 @@ def conv2D(inImage: np.ndarray, kernel2: np.ndarray) -> np.ndarray:
     :return: The convolved image
     """
 
-    revKernel2 = np.flip(kernel2)
-    ans = np.zeros(inImage.shape)
+    revKernel2 = np.flip(kernel2)  # Reverse the order of kernel
+    ans = np.zeros(inImage.shape)  # init a result array in size inImage
 
-# caz we are in 2D space, we need to check how many zeros we should adding
-# to the rows and columns of the original image
-    lenX = np.floor(revKernel2.shape[0] / 2).astype(int)
+    # caz we are in 2D space, we need to check how many zeros we should adding
+    # to the rows and columns of the original image
+    lenX = np.floor(revKernel2.shape[0] / 2).astype(int)  # floor takes a lower value of a given number
     if lenX < 1:
         lenX = 1
     lenY = np.floor(revKernel2.shape[1] / 2).astype(int)
@@ -41,11 +42,29 @@ def conv2D(inImage: np.ndarray, kernel2: np.ndarray) -> np.ndarray:
         lenY = 1
 
     afterZeros = np.pad(inImage, [(lenX,), (lenY,)], mode='constant')  # The actual addition
-    res = cv2.filter2D(inImage, ans, revKernel2, borderType=cv2.BORDER_REPLICATE)
+    res = help2D(lenX, lenY, afterZeros, ans, revKernel2)
+
     return res
 
 
-def convDerivative(inImage : np.ndarray) -> (np.ndarray,np.ndarray,np.ndarray,np.ndarray):
+""" Auxiliary function that performs convolution in 2D space, here the kernel is
+multiply with the partial signal """
+def help2D(lenX: int, lenY: int, afterZeros: np.ndarray, ans: np.ndarray, revKernel2: np.ndarray) -> (np.ndarray):
+    for row in range(lenX, afterZeros.shape[0] - lenX):
+        for col in range(lenY, afterZeros.shape[1] - lenY):
+            begin_row = row - lenX
+            end_row = row - lenX + revKernel2.shape[0]
+            begin_col = col - lenY
+            end_col = col - lenY + revKernel2.shape[1]
+            signal_part = afterZeros[begin_row:end_row, begin_col:end_col]
+            ans[begin_row, begin_col] = np.sum(np.multiply(signal_part, revKernel2))
+    return ans
+
+
+
+
+
+def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     Calculate gradient of an image
     :param inImage: Grayscale iamge
@@ -62,7 +81,7 @@ def convDerivative(inImage : np.ndarray) -> (np.ndarray,np.ndarray,np.ndarray,np
     yDerive = cv2.filter2D(blurImg, -1, yKrnl, borderType=cv2.BORDER_REPLICATE)
 
     # According to the formulas we learned in the class
-    magnitude = np.sqrt(np.square(xDerive) + np.square(yDerive)).astype('uint8')
+    mag = np.sqrt(np.square(xDerive) + np.square(yDerive)).astype('uint8')
     directions = np.arctan2(yDerive, xDerive) * 180 / np.pi
 
-    return directions, magnitude, xDerive, yDerive
+    return directions, mag, xDerive, yDerive
