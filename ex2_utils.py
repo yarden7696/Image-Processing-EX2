@@ -49,6 +49,8 @@ def conv2D(inImage: np.ndarray, kernel2: np.ndarray) -> np.ndarray:
 
 """ Auxiliary function that performs convolution in 2D space, here the kernel is
 multiply with the partial signal """
+
+
 def help2D(lenX: int, lenY: int, afterZeros: np.ndarray, ans: np.ndarray, revKernel2: np.ndarray) -> (np.ndarray):
     for row in range(lenX, afterZeros.shape[0] - lenX):
         for col in range(lenY, afterZeros.shape[1] - lenY):
@@ -59,9 +61,6 @@ def help2D(lenX: int, lenY: int, afterZeros: np.ndarray, ans: np.ndarray, revKer
             signal_part = afterZeros[begin_row:end_row, begin_col:end_col]
             ans[begin_row, begin_col] = np.sum(np.multiply(signal_part, revKernel2))
     return ans
-
-
-
 
 
 def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
@@ -87,20 +86,60 @@ def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, 
     return directions, mag, xDerive, yDerive
 
 
-
-
-def edgeDetectionSobel(img: np.ndarray, thresh: float = 0.7)-> (np.ndarray, np.ndarray):
+def edgeDetectionSobel(img: np.ndarray, thresh: float = 0.7) -> (np.ndarray, np.ndarray):
     """
     Detects edges using the Sobel method
     :param img: Input image
     :param thresh: The minimum threshold for the edge response
     :return: opencv solution, my implementation
     """
-
     sobelX = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
     sobelY = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
+    derivativeX = conv2D(img, sobelX)  # Blurring in the Y direction and derivative in the X direction
+    derivativeY = conv2D(img, sobelY)  # Blurring in the X direction and derivative in the Y direction
+    myMag = np.sqrt(np.square(derivativeX) + np.square(derivativeY))  # cal mag according the formula
+    myMag[myMag < thresh * 255] = 0
+    myMag[myMag >= thresh * 255] = 1
 
-    derivativeX = conv2D(img, sobelX)
-    derivativeY = conv2D(img, sobelY)
-    myMag = np.sqrt(np.square(sobelX) + np.square(sobelY))
+    # Blurring in the Y direction and derivative in the X direction and opposite using cv2.Sobel
+    grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0)
+    grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1)
+    cvMag = cv2.magnitude(grad_x, grad_y)  # cal mag according the formula
+    cvMag[cvMag < thresh * 255] = 0
+    cvMag[cvMag >= thresh * 255] = 1
+    return cvMag, myMag
 
+
+def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> (np.ndarray): # אלגוריתם של עידו לשנות לשלי
+    """
+    Detecting edges using the "ZeroCrossing" method
+    :param img: Input image
+    :return: Edge matrix
+    """
+    krnl_LPLCAN = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+    img = conv2D(img, krnl_LPLCAN)
+    zeroCrossing = np.zeros(img.shape)
+    for i in range(img.shape[0] - (krnl_LPLCAN.shape[0] - 1)):
+        for j in range(img.shape[1] - (krnl_LPLCAN.shape[1] - 1)):
+            if img[i][j] == 0:
+                if (img[i][j + 1] > 0 and img[i][j - 1] < 0) or \
+                        (img[i][j + 1] < 0 and img[i][j - 1] < 0) or \
+                        (img[i + 1][j] > 0 and img[i - 1][j] < 0) or \
+                        (img[i + 1][j] < 0 and img[i - 1][j] > 0):
+                    zeroCrossing[i][j] = 255
+            if img[i][j] < 0:
+                if (img[i][j + 1] > 0) or (img[i][j - 1] > 0) or \
+                          (img[i + 1][j] > 0) or (img[i - 1][j] > 0):
+                    zeroCrossing[i][j] = 255
+    return zeroCrossing
+
+
+
+def edgeDetectionCanny(img: np.ndarray, thrs_1: float, thrs_2: float)-> (np.ndarray, np.ndarray):
+    """
+    Detecting edges usint "Canny Edge" method
+    :param img: Input image
+    :param thrs_1: T1
+    :param thrs_2: T2
+    :return: opencv solution, my implementation
+    """

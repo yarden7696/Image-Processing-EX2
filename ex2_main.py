@@ -1,3 +1,4 @@
+import time
 import numpy as np
 from ex2_utils import *
 import matplotlib.pyplot as plt
@@ -25,8 +26,6 @@ def conv2Demo():
     plt.show()
 
 
-
-
 def derivDemo():
 
     img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
@@ -41,9 +40,10 @@ def derivDemo():
     plt.show()
 
 
+#def edgeDemo():
+
 
 # blurDemo()
-# edgeDemo()
 # houghDemo()
 
 
@@ -54,4 +54,5 @@ if __name__ == '__main__':
         print(" ")
         conv2Demo()
         print(" ")
-        derivDemo()
+        #derivDemo()
+        edgeDemo()
