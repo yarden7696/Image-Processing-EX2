@@ -6,8 +6,8 @@ from matala2 import ex2_utils
 
 
 def conv1Demo():
-    print("numpy: ", np.convolve(np.array([1, 2, 3]), np.array([1,2,1])/4, "full"),
-          " my result: ", conv1D(np.array([1, 2, 3]), np.array([1,2,1])/4))
+    print("numpy result:", np.convolve(np.array([1, 2, 3]), np.array([1,2,1])/4, "full"))
+    print("My result  : ", conv1D(np.array([1, 2, 3]), np.array([1,2,1])/4))
 
 
 def conv2Demo():
@@ -15,32 +15,30 @@ def conv2Demo():
     img_path = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
     numpyRes = cv2.filter2D(img_path, -1, krnl, borderType=cv2.BORDER_REPLICATE)
     myRes = conv2D(img_path, krnl)
-    print("numpy: ", numpyRes)
-    print(" ")
-    print("my result: ", myRes)
+
+    fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
+    fig.suptitle('Convolution2D', fontsize=29)
+    axes[0].set_title('my result')
+    axes[0].imshow(myRes, cmap="gray")
+    axes[1].set_title('numpy result')
+    axes[1].imshow(numpyRes, cmap="gray")
+    plt.show()
+
+
+
+
+def derivDemo():
+
+    img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
+    directions, magnitude, im_derive_x, im_derive_y = convDerivative(img)
 
     plt.gray()
-    plt.imshow(numpyRes)
+    fig, axes = plt.subplots(2, 2)  # 2 row and 2 cols
+    axes[0][0].set_title('Original'),axes[0][0].imshow(img)
+    axes[0][1].set_title('Magnitude'),axes[0][1].imshow(magnitude)
+    axes[1][0].set_title('Derivative X'),axes[1][0].imshow(im_derive_x)
+    axes[1][1].set_title('Derivative Y'),axes[1][1].imshow(im_derive_y)
     plt.show()
-    plt.imshow(myRes)
-    plt.show()
-
-
-#def derivDemo():  this is hila test
-
-    # img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
-    # directions, magnitude, im_derive_x, im_derive_y = convDerivative(img)
-    #
-    # plt.gray()
-    # plt.subplot(2, 2, 1), plt.imshow(img)
-    # plt.title('Original'), plt.xticks([]), plt.yticks([])
-    # plt.subplot(2, 2, 2), plt.imshow(magnitude)
-    # plt.title('Magnitude'), plt.xticks([]), plt.yticks([])
-    # plt.subplot(2, 2, 3), plt.imshow(im_derive_x)
-    # plt.title('Derivative X'), plt.xticks([]), plt.yticks([])
-    # plt.subplot(2, 2, 4), plt.imshow(im_derive_y)
-    # plt.title('Derivative Y'), plt.xticks([]), plt.yticks([])
-    # plt.show()
 
 
 
@@ -50,10 +48,10 @@ def conv2Demo():
 
 
 if __name__ == '__main__':
+
         print("conv1D-")
         conv1Demo()
         print(" ")
-        print("conv2D-...(לבדוק למה יצאו לי מצריצות שונות(")
         conv2Demo()
-        print("")
-        #derivDemo()
+        print(" ")
+        derivDemo()

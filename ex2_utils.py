@@ -73,7 +73,7 @@ def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, 
 
     blurImg = cv2.GaussianBlur(inImage, (5, 5), 1)  # smoothing before derivative using gaussian filter
 
-    xKrnl = np.array([1, 0, -1]).reshape((1, 3))
+    xKrnl = np.array([-1, 0, 1]).reshape((1, 3))
     yKrnl = xKrnl.reshape((3, 1))
 
     # After i blurred the image i need to calc partial derivative of X and Y
@@ -85,3 +85,22 @@ def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, 
     directions = np.arctan2(yDerive, xDerive) * 180 / np.pi
 
     return directions, mag, xDerive, yDerive
+
+
+
+
+def edgeDetectionSobel(img: np.ndarray, thresh: float = 0.7)-> (np.ndarray, np.ndarray):
+    """
+    Detects edges using the Sobel method
+    :param img: Input image
+    :param thresh: The minimum threshold for the edge response
+    :return: opencv solution, my implementation
+    """
+
+    sobelX = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+    sobelY = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
+
+    derivativeX = conv2D(img, sobelX)
+    derivativeY = conv2D(img, sobelY)
+    myMag = np.sqrt(np.square(sobelX) + np.square(sobelY))
+
