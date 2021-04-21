@@ -110,7 +110,7 @@ def edgeDetectionSobel(img: np.ndarray, thresh: float = 0.7) -> (np.ndarray, np.
     return cvMag, myMag
 
 
-def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> (np.ndarray): # אלגוריתם של עידו לשנות לשלי
+def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> (np.ndarray):
     """
     Detecting edges using the "ZeroCrossing" method
     :param img: Input image
@@ -149,4 +149,73 @@ def edgeDetectionCanny(img: np.ndarray, thrs_1: float, thrs_2: float)-> (np.ndar
     :param thrs_2: T2
     :return: opencv solution, my implementation
     """
+
+    cv2Res = cv2.Canny(cv2.GaussianBlur(img, (5, 5), 0), thrs_1 * 255, thrs_2 * 255)
+
+    sobelX = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+    sobelY = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
+    img = cv2.GaussianBlur(img, (5, 5), 0)  # Blurring the image using Gaussian
+    grad_x = conv2D(img, sobelX)  # Calculation of a partial derivative of X
+    grad_y = conv2D(img, sobelY)  # Calculation of a partial derivative of Y
+    myMag = np.sqrt(np.square(grad_x) + np.square(grad_y)) # cal mag according the formula
+    myDirections = (np.rad2deg(np.arctan2(grad_y, grad_x)) % 180)
+    #  round the angel of the gradient
+    myDirections[(157.5 <= myDirections) | (myDirections < 22.5)] = 0
+    myDirections[(myDirections < 67.5) & (22.5 <= myDirections)] = 45
+    myDirections[(myDirections < 112.5) & (67.5 <= myDirections)] = 90
+    myDirections[(myDirections < 157.5) & (112.5 <= myDirections)] = 135
+# __________________________________________here i stopped______________________________________________________
+    ans = non_maximum_suppression(myMag, myDirections)
+    ans = double_threshold_hysteresis(ans, thrs_1 * 255, thrs_2 * 255)
+
+
+
+    return cv2Res, ans
+
+
+def gradient_round(angle: np.ndarray):
+    angle[(angle < 22.5) | (157.5 <= angle)] = 0
+    angle[(22.5 <= angle) & (angle < 67.5)] = 45
+    angle[(67.5 <= angle) & (angle < 112.5)] = 90
+    angle[(112.5 <= angle) & (angle < 157.5)] = 135
+    return angle
+
+
+def non_maximum_suppression(magnitude, Theta):
+    ans = np.zeros(magnitude.shape)
+    for i in range(1, magnitude.shape[0] - 1):
+        for j in range(1, magnitude.shape[1] - 1):
+            if Theta[i, j] == 0:
+                if (magnitude[i, j] > magnitude[i, j - 1]) and (magnitude[i, j] > magnitude[i, j + 1]):
+                    ans[i, j] = magnitude[i, j]
+            elif Theta[i, j] == 45:
+                if (magnitude[i, j] > magnitude[i - 1, j + 1]) and (magnitude[i, j] > magnitude[i + 1, j - 1]):
+                    ans[i, j] = magnitude[i, j]
+            elif Theta[i, j] == 90:
+                if (magnitude[i, j] > magnitude[i - 1, j]) and (magnitude[i, j] > magnitude[i + 1, j]):
+                    ans[i, j] = magnitude[i, j]
+            elif Theta[i, j] == 135:
+                if (magnitude[i, j] > magnitude[i - 1, j - 1]) and (magnitude[i, j] > magnitude[i + 1, j + 1]):
+                    ans[i, j] = magnitude[i, j]
+    return ans
+
+
+def All_his_neighbors(img, x, y):
+    return [img[x - 1, y - 1], img[x - 1, y],
+            img[x - 1, y + 1], img[x, y - 1],
+            img[x, y + 1], img[x + 1, y - 1],
+            img[x + 1, y], img[x + 1, y + 1]]
+
+
+def double_threshold_hysteresis(img, low, high):
+    img_h, img_w = img.shape
+    result = np.zeros((img_h, img_w))
+    result[img >= high] = 255
+    weak_x_y = np.argwhere((img <= high) & (img >= low))
+    for x, y in weak_x_y:
+        result[x, y] = 255 if 255 in All_his_neighbors(result, x, y) else 0
+    result[img < low] = 0
+    return result
+
+
 
