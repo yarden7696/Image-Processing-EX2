@@ -116,20 +116,26 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> (np.ndarray): # אלגו
     :param img: Input image
     :return: Edge matrix
     """
-    krnl_LPLCAN = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
-    img = conv2D(img, krnl_LPLCAN)
-    zeroCrossing = np.zeros(img.shape)
+    krnl_LPLCAN = np.array([[0, 1, 0],
+                            [1, -4, 1],
+                            [0, 1, 0]])
+    img = conv2D(img, krnl_LPLCAN)  # laplacian filter
+    zeroCrossing = np.zeros(img.shape)  # create the final ans of the edges matrix
+
+    # Check for a zero crossing around (x,y)
     for i in range(img.shape[0] - (krnl_LPLCAN.shape[0] - 1)):
         for j in range(img.shape[1] - (krnl_LPLCAN.shape[1] - 1)):
-            if img[i][j] == 0:
-                if (img[i][j + 1] > 0 and img[i][j - 1] < 0) or \
-                        (img[i][j + 1] < 0 and img[i][j - 1] < 0) or \
-                        (img[i + 1][j] > 0 and img[i - 1][j] < 0) or \
-                        (img[i + 1][j] < 0 and img[i - 1][j] > 0):
+            cellij = img[i][j]
+            cellPj = img[i][j + 1]
+            cellMj = img[i][j - 1]
+            cellPi = img[i + 1][j]
+            cellMi = img[i - 1][j]
+            if cellij == 0:
+                if (cellPj > 0 and cellMj < 0) or (cellPj < 0 and cellMj < 0) or \
+                        (cellPi > 0 and cellMi < 0) or (cellPi < 0 and cellMi > 0):
                     zeroCrossing[i][j] = 255
-            if img[i][j] < 0:
-                if (img[i][j + 1] > 0) or (img[i][j - 1] > 0) or \
-                          (img[i + 1][j] > 0) or (img[i - 1][j] > 0):
+            if cellij < 0:
+                if (cellPj > 0) or (cellMj > 0) or (cellPi > 0) or (cellMi > 0):
                     zeroCrossing[i][j] = 255
     return zeroCrossing
 
@@ -143,3 +149,4 @@ def edgeDetectionCanny(img: np.ndarray, thrs_1: float, thrs_2: float)-> (np.ndar
     :param thrs_2: T2
     :return: opencv solution, my implementation
     """
+
