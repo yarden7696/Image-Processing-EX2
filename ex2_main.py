@@ -54,5 +54,5 @@ if __name__ == '__main__':
         print(" ")
         conv2Demo()
         print(" ")
-        #derivDemo()
-        edgeDemo()
+        derivDemo()
+        #edgeDemo()

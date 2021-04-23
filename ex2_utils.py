@@ -150,7 +150,7 @@ def edgeDetectionCanny(img: np.ndarray, thrs_1: float, thrs_2: float)-> (np.ndar
     :return: opencv solution, my implementation
     """
 
-    cv2Res = cv2.Canny(cv2.GaussianBlur(img, (5, 5), 0), thrs_1 * 255, thrs_2 * 255)
+    cv2Res = cv2.Canny(cv2.GaussianBlur(img, (5, 5), 0), thrs_1 * 255, thrs_2 * 255)  # cv2 canny algorithm
 
     sobelX = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
     sobelY = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
@@ -164,58 +164,47 @@ def edgeDetectionCanny(img: np.ndarray, thrs_1: float, thrs_2: float)-> (np.ndar
     myDirections[(myDirections < 67.5) & (22.5 <= myDirections)] = 45
     myDirections[(myDirections < 112.5) & (67.5 <= myDirections)] = 90
     myDirections[(myDirections < 157.5) & (112.5 <= myDirections)] = 135
-# __________________________________________here i stopped______________________________________________________
-    ans = non_maximum_suppression(myMag, myDirections)
-    ans = double_threshold_hysteresis(ans, thrs_1 * 255, thrs_2 * 255)
+
+    # In the following conditions we run all over the pixels and check whether its power is stronger
+    # than one pixel to the right and one pixel to the left.If so we will save it in the answer matrix
+    result = np.zeros(myMag.shape)
+    for i in range(1, myMag.shape[0] - 1):
+        for j in range(1, myMag.shape[1] - 1):
+            cellij = myMag[i, j], cellMj = myMag[i, j - 1], cellPj = myMag[i, j + 1], cellMi = myMag[i - 1, j]
+            cellMiPj = myMag[i - 1, j + 1], cellPiMj = myMag[i + 1, j - 1], cellMiMj = myMag[i - 1, j - 1]
+            cellPi = myMag[i + 1, j], cellPiPj = myMag[i + 1, j + 1]
+            if myDirections[i, j] == 0:
+                if (cellij > cellMj) and (cellij > cellPj):
+                    result[i, j] = cellij
+            elif myDirections[i, j] == 45:
+                if (cellij > cellMiPj) and (cellij > cellPiMj):
+                    result[i, j] = cellij
+            elif myDirections[i, j] == 90:
+                if (cellij > cellMi) and (cellij > cellPi):
+                    result[i, j] = cellij
+            elif myDirections[i, j] == 135:
+                if (cellij > cellMiMj) and (cellij > cellPiPj):
+                    result[i, j] = cellij
+
+    result = hysteresis(result, thrs_1 * 255, thrs_2 * 255)
+
+    return cv2Res, result
 
 
-
-    return cv2Res, ans
-
-
-def gradient_round(angle: np.ndarray):
-    angle[(angle < 22.5) | (157.5 <= angle)] = 0
-    angle[(22.5 <= angle) & (angle < 67.5)] = 45
-    angle[(67.5 <= angle) & (angle < 112.5)] = 90
-    angle[(112.5 <= angle) & (angle < 157.5)] = 135
-    return angle
-
-
-def non_maximum_suppression(magnitude, Theta):
-    ans = np.zeros(magnitude.shape)
-    for i in range(1, magnitude.shape[0] - 1):
-        for j in range(1, magnitude.shape[1] - 1):
-            if Theta[i, j] == 0:
-                if (magnitude[i, j] > magnitude[i, j - 1]) and (magnitude[i, j] > magnitude[i, j + 1]):
-                    ans[i, j] = magnitude[i, j]
-            elif Theta[i, j] == 45:
-                if (magnitude[i, j] > magnitude[i - 1, j + 1]) and (magnitude[i, j] > magnitude[i + 1, j - 1]):
-                    ans[i, j] = magnitude[i, j]
-            elif Theta[i, j] == 90:
-                if (magnitude[i, j] > magnitude[i - 1, j]) and (magnitude[i, j] > magnitude[i + 1, j]):
-                    ans[i, j] = magnitude[i, j]
-            elif Theta[i, j] == 135:
-                if (magnitude[i, j] > magnitude[i - 1, j - 1]) and (magnitude[i, j] > magnitude[i + 1, j + 1]):
-                    ans[i, j] = magnitude[i, j]
-    return ans
-
-
-def All_his_neighbors(img, x, y):
-    return [img[x - 1, y - 1], img[x - 1, y],
+def hysteresis(img, weak, strong):
+    img_height, img_width = img.shape
+    ans = np.zeros((img_height, img_width))
+    ans[img < weak] = 0  # set all pixels that smaller than T2 to 0
+    ans[img >= strong] = 255  # set all pixels that grater than T1 to 255
+    #  All the pixels in weak XY are between T1 and T2 so we need to check if each of them is an edge.
+    weakXY = np.argwhere((img <= strong) & (img >= weak))
+    for x, y in weakXY:
+        ans[x, y] = 255 if 255 in [img[x - 1, y - 1], img[x - 1, y],
             img[x - 1, y + 1], img[x, y - 1],
             img[x, y + 1], img[x + 1, y - 1],
-            img[x + 1, y], img[x + 1, y + 1]]
+            img[x + 1, y], img[x + 1, y + 1]] else 0
 
-
-def double_threshold_hysteresis(img, low, high):
-    img_h, img_w = img.shape
-    result = np.zeros((img_h, img_w))
-    result[img >= high] = 255
-    weak_x_y = np.argwhere((img <= high) & (img >= low))
-    for x, y in weak_x_y:
-        result[x, y] = 255 if 255 in All_his_neighbors(result, x, y) else 0
-    result[img < low] = 0
-    return result
+    return ans
 
 
 
