@@ -19,9 +19,9 @@ def conv2Demo():
 
     fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
     fig.suptitle('Convolution2D', fontsize=29)
-    axes[0].set_title('my result')
+    axes[0].set_title('My Result')
     axes[0].imshow(myRes, cmap="gray")
-    axes[1].set_title('numpy result')
+    axes[1].set_title('Numpy Result')
     axes[1].imshow(numpyRes, cmap="gray")
     plt.show()
 
@@ -30,9 +30,9 @@ def derivDemo():
 
     img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
     directions, magnitude, im_derive_x, im_derive_y = convDerivative(img)
-
     plt.gray()
     fig, axes = plt.subplots(2, 2)  # 2 row and 2 cols
+    fig.suptitle('convDerivative', fontsize=20)
     axes[0][0].set_title('Original'),axes[0][0].imshow(img)
     axes[0][1].set_title('Magnitude'),axes[0][1].imshow(magnitude)
     axes[1][0].set_title('Derivative X'),axes[1][0].imshow(im_derive_x)
@@ -40,7 +40,35 @@ def derivDemo():
     plt.show()
 
 
-#def edgeDemo():
+def edgeDemo():
+
+    img = cv2.imread("coins.jpg", cv2.IMREAD_GRAYSCALE)
+
+    """edgeDetectionSobel test"""
+    cv2_edge_dtcton_sobel, my_edge_dtcton_sobel = edgeDetectionSobel(img)
+    fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
+    fig.suptitle('edgeDetectionSobel', fontsize=23)
+    axes[0].imshow(cv2_edge_dtcton_sobel)
+    axes[0].set_title("cv2 Result")
+    axes[1].imshow(my_edge_dtcton_sobel)
+    axes[1].set_title("My Result")
+    plt.show()
+
+    """edgeDetectionZeroCrossingSimple test"""
+    edgeDetection_img = edgeDetectionZeroCrossingSimple(img)
+    plt.imshow(edgeDetection_img)
+    plt.title("edgeDetectionZeroCrossingSimple")
+    plt.show()
+
+    """edgeDetectionCanny test"""
+    cv2_edge_img, edge_img = edgeDetectionCanny(img, 100, 50)
+    fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
+    fig.suptitle('edgeDetectionCanny', fontsize=23)
+    axes[0].imshow(cv2_edge_img)
+    axes[0].set_title("cv2 Result")
+    axes[1].imshow(edge_img)
+    axes[1].set_title("My Result")
+    plt.show()
 
 
 # blurDemo()
@@ -55,4 +83,4 @@ if __name__ == '__main__':
         conv2Demo()
         print(" ")
         derivDemo()
-        #edgeDemo()
+        edgeDemo()

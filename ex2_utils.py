@@ -170,27 +170,24 @@ def edgeDetectionCanny(img: np.ndarray, thrs_1: float, thrs_2: float)-> (np.ndar
     result = np.zeros(myMag.shape)
     for i in range(1, myMag.shape[0] - 1):
         for j in range(1, myMag.shape[1] - 1):
-            cellij = myMag[i, j], cellMj = myMag[i, j - 1], cellPj = myMag[i, j + 1], cellMi = myMag[i - 1, j]
-            cellMiPj = myMag[i - 1, j + 1], cellPiMj = myMag[i + 1, j - 1], cellMiMj = myMag[i - 1, j - 1]
-            cellPi = myMag[i + 1, j], cellPiPj = myMag[i + 1, j + 1]
             if myDirections[i, j] == 0:
-                if (cellij > cellMj) and (cellij > cellPj):
-                    result[i, j] = cellij
+                if (myMag[i, j] > myMag[i, j - 1]) and (myMag[i, j] > myMag[i, j + 1]):
+                    result[i, j] = myMag[i, j]
             elif myDirections[i, j] == 45:
-                if (cellij > cellMiPj) and (cellij > cellPiMj):
-                    result[i, j] = cellij
+                if (myMag[i, j] > myMag[i - 1, j + 1]) and (myMag[i, j] > myMag[i + 1, j - 1]):
+                    result[i, j] = myMag[i, j]
             elif myDirections[i, j] == 90:
-                if (cellij > cellMi) and (cellij > cellPi):
-                    result[i, j] = cellij
+                if (myMag[i, j] > myMag[i - 1, j]) and (myMag[i, j] > myMag[i + 1, j]):
+                    result[i, j] = myMag[i, j]
             elif myDirections[i, j] == 135:
-                if (cellij > cellMiMj) and (cellij > cellPiPj):
-                    result[i, j] = cellij
+                if (myMag[i, j] > myMag[i - 1, j - 1]) and (myMag[i, j] > myMag[i + 1, j + 1]):
+                    result[i, j] = myMag[i, j]
 
     result = hysteresis(result, thrs_1 * 255, thrs_2 * 255)
 
     return cv2Res, result
 
-
+""" Helper function that checks all the pixels between T1 and T2 """
 def hysteresis(img, weak, strong):
     img_height, img_width = img.shape
     ans = np.zeros((img_height, img_width))
