@@ -61,7 +61,7 @@ def edgeDemo():
     plt.show()
 
     """edgeDetectionCanny test"""
-    cv2_edge_img, edge_img = edgeDetectionCanny(img, 100, 50)
+    cv2_edge_img, edge_img = edgeDetectionCanny(img, 0.09, 0.05)
     fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
     fig.suptitle('edgeDetectionCanny', fontsize=23)
     axes[0].imshow(cv2_edge_img)
@@ -72,15 +72,26 @@ def edgeDemo():
 
 
 # blurDemo()
-# houghDemo()
+
+def houghDemo():
+    img = cv2.imread("boxan.jpg", cv2.IMREAD_GRAYSCALE)
+    list = ex2_utils.houghCircle(img, 40, 100)
+    f, ax = plt.subplots()
+    f.suptitle('hough', fontsize=16)
+    ax.imshow(img, cmap="gray")
+    for c in list:
+        circle1 = plt.Circle((c[0], c[1]), c[2], color='r', fill=False)
+        ax.add_artist(circle1)
+    plt.show()
 
 
 if __name__ == '__main__':
-
-        print("conv1D-")
+        print("")
+        print("MY ID : 207205972")
+        print(" ")
+        print("'conv1D' - ")
         conv1Demo()
-        print(" ")
         conv2Demo()
-        print(" ")
         derivDemo()
         edgeDemo()
+        houghDemo()

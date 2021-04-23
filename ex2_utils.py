@@ -204,4 +204,54 @@ def hysteresis(img, weak, strong):
     return ans
 
 
+def houghCircle(img:np.ndarray,min_radius:float,max_radius:float)->list:
+    """
+    Find Circles in an image using a Hough Transform algorithm extension
+    :param I: Input image
+    :param minRadius: Minimum circle radius
+    :param maxRadius: Maximum circle radius
+    :return: A list containing the detected circles,
+    [(x,y,radius),(x,y,radius),...]
+    """
+
+    # Do a canny edge detection
+    imgc, _ = edgeDetectionCanny(img, 100, 50)
+
+    # Get the deration matrix after sobel
+    G = np.sqrt(np.power(cv2.Sobel(img, -1, 0, 1), 2) + np.power(cv2.Sobel(img, -1, 1, 0), 2))
+    div = np.arctan2(cv2.Sobel(img, -1, 0, 1), cv2.Sobel(img, -1, 1, 0))
+
+    tresh = 20
+    # 3D array of all to check all the radius from min to max
+    hough = np.zeros((imgc.shape[0], imgc.shape[1], max_radius - min_radius))
+    list = []
+
+    # for every R is there is a circle in the image
+    for r in range(hough.shape[2]):
+        for x in range(0, imgc.shape[1]):
+            for y in range(0, imgc.shape[0]):
+                if imgc[y, x] != 0:
+                    try:
+                        # Will mark according to the gradient direction the front and rear points as centers of circles
+                        a1 = x + (r + min_radius) * np.cos(div[y, x])
+                        b1 = y + (r + min_radius) * np.sin(div[y, x])
+                        a2 = x - (r + min_radius) * np.cos(div[y, x])
+                        b2 = y - (r + min_radius) * np.sin(div[y, x])
+                        hough[int(a1), int(b1), r] += 1
+                        hough[int(a2), int(b2), r] += 1
+
+                    except IndexError as e:
+                        pass
+
+    # Check if the point is over the threshold and should mark as a center of ac circle
+    for r in range(hough.shape[2]):
+        for x in range(0, img.shape[0]):
+            for y in range(0, img.shape[1]):
+                if hough[x, y, r] > tresh:
+                    list.append((x, y, min_radius + r))
+
+    return list
+
+
+
 
