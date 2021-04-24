@@ -19,6 +19,7 @@ def conv2Demo():
 
     fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
     fig.suptitle('Convolution2D', fontsize=29)
+    plt.gray()
     axes[0].set_title('My Result')
     axes[0].imshow(myRes, cmap="gray")
     axes[1].set_title('Numpy Result')
@@ -47,6 +48,7 @@ def edgeDemo():
     """edgeDetectionSobel test"""
     cv2_edge_dtcton_sobel, my_edge_dtcton_sobel = edgeDetectionSobel(img)
     fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
+    plt.gray()
     fig.suptitle('edgeDetectionSobel', fontsize=23)
     axes[0].imshow(cv2_edge_dtcton_sobel)
     axes[0].set_title("cv2 Result")
@@ -71,17 +73,31 @@ def edgeDemo():
     plt.show()
 
 
-# blurDemo()
+def blurDemo():
+    img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
+    myBlur = blurImage1(img,5)
+    cv2Blur = blurImage2(img, 5)
+
+    fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
+    plt.gray()
+    fig.suptitle('Blurring - Bonus', fontsize=23)
+    axes[0].imshow(myBlur)
+    axes[0].set_title("blurImage1 - mine")
+    axes[1].imshow(cv2Blur)
+    axes[1].set_title("blurImage2 - cv2")
+    plt.show()
+
+
 
 def houghDemo():
-    img = cv2.imread("boxan.jpg", cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
     list = ex2_utils.houghCircle(img, 40, 100)
-    f, ax = plt.subplots()
-    f.suptitle('hough', fontsize=16)
-    ax.imshow(img, cmap="gray")
-    for c in list:
-        circle1 = plt.Circle((c[0], c[1]), c[2], color='r', fill=False)
-        ax.add_artist(circle1)
+    fig, axes = plt.subplots()
+    fig.suptitle('houghCircle', fontsize=23)
+    axes.imshow(img, cmap="gray")
+    for i in list:
+        circle1 = plt.Circle((i[0], i[1]), i[2], color='r', fill=False)
+        axes.add_artist(circle1)
     plt.show()
 
 
@@ -95,3 +111,5 @@ if __name__ == '__main__':
         derivDemo()
         edgeDemo()
         houghDemo()
+        blurDemo()
+

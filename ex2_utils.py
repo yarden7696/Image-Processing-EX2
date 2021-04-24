@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 
 
+# -----------------------------  Q1 Convolution -----------------------------
+
 def conv1D(inSignal: np.ndarray, kernel1: np.ndarray) -> np.ndarray:
     """
  Convolve a 1-D array with a given kernel
@@ -62,7 +64,9 @@ def help2D(lenX: int, lenY: int, afterZeros: np.ndarray, ans: np.ndarray, revKer
             ans[begin_row, begin_col] = np.sum(np.multiply(signal_part, revKernel2))
     return ans
 
+# ----------------------------- Q2 Image derivatives & blurring -----------------------------
 
+# 2.1
 def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     """
     Calculate gradient of an image
@@ -85,6 +89,40 @@ def convDerivative(inImage: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, 
 
     return directions, mag, xDerive, yDerive
 
+
+# 2.2
+def blurImage1(in_image:np.ndarray,kernel_size:np.ndarray)->np.ndarray:
+    """
+    Blur an image using a Gaussian kernel
+    :param inImage: Input image
+    :param kernelSize: Kernel size
+    :return: The Blurred image
+    """
+
+
+    # The rule of thumb for Gaussian filter design is to choose the filter size
+    # to be about 3 times the standard sigma value in each direction, hence-
+    sigma = 0.3 * ((kernel_size - 1) * 0.5 - 1) + 0.8
+    krnl = np.zeros((kernel_size//2, kernel_size//2))
+
+    for i in range(kernel_size//2):
+        for j in range(kernel_size//2):
+            x, y = i - kernel_size//2, j - kernel_size//2
+            krnl[i, j] = np.exp(-(x ** 2 + y ** 2) / (2 * sigma ** 2)) / (2 * np.pi * sigma ** 2)
+    return conv2D(in_image, krnl)
+
+def blurImage2(in_image:np.ndarray,kernel_size:np.ndarray)->np.ndarray:
+    """
+    Blur an image using a Gaussian kernel using OpenCV built-in functions
+    :param inImage: Input image
+    :param kernelSize: Kernel size
+    :return: The Blurred image
+    """
+    kernel = cv2.getGaussianKernel(kernel_size, int(round(0.3 * ((kernel_size - 1) * 0.5 - 1) + 0.8)))
+    return cv2.filter2D(in_image, -1, kernel, borderType=cv2.BORDER_REPLICATE)
+
+
+# ----------------------------- Q3 Edge Detection -----------------------------
 
 def edgeDetectionSobel(img: np.ndarray, thresh: float = 0.7) -> (np.ndarray, np.ndarray):
     """
@@ -187,6 +225,7 @@ def edgeDetectionCanny(img: np.ndarray, thrs_1: float, thrs_2: float)-> (np.ndar
 
     return cv2Res, result
 
+
 """ Helper function that checks all the pixels between T1 and T2 """
 def hysteresis(img, weak, strong):
     img_height, img_width = img.shape
@@ -204,6 +243,8 @@ def hysteresis(img, weak, strong):
     return ans
 
 
+# ----------------------------- Q4 Hough Circles -----------------------------
+
 def houghCircle(img:np.ndarray,min_radius:float,max_radius:float)->list:
     """
     Find Circles in an image using a Hough Transform algorithm extension
@@ -215,10 +256,9 @@ def houghCircle(img:np.ndarray,min_radius:float,max_radius:float)->list:
     """
 
     # Do a canny edge detection
-    imgc, _ = edgeDetectionCanny(img, 100, 50)
+    imgc  = cv2.Canny(img.astype(np.uint8), 100, 50)
 
     # Get the deration matrix after sobel
-    G = np.sqrt(np.power(cv2.Sobel(img, -1, 0, 1), 2) + np.power(cv2.Sobel(img, -1, 1, 0), 2))
     div = np.arctan2(cv2.Sobel(img, -1, 0, 1), cv2.Sobel(img, -1, 1, 0))
 
     tresh = 20
