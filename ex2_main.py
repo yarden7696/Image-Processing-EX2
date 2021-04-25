@@ -13,7 +13,7 @@ def conv1Demo():
 
 def conv2Demo():
     krnl = np.ones(shape=(5, 5)) * (1 / 25)
-    img_path = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
+    img_path = cv2.imread("beach.jpg", cv2.IMREAD_GRAYSCALE)
     numpyRes = cv2.filter2D(img_path, -1, krnl, borderType=cv2.BORDER_REPLICATE)
     myRes = conv2D(img_path, krnl)
 
@@ -38,8 +38,9 @@ def derivDemo():
     axes[0][1].set_title('Magnitude'),axes[0][1].imshow(magnitude)
     axes[1][0].set_title('Derivative X'),axes[1][0].imshow(im_derive_x)
     axes[1][1].set_title('Derivative Y'),axes[1][1].imshow(im_derive_y)
-    #axes[1][1].set_title('directions'), axes[1][1].imshow(directions)
     plt.show()
+
+
 
 
 def edgeDemo():
@@ -75,9 +76,9 @@ def edgeDemo():
 
 
 def blurDemo():
-    img = cv2.imread("codeMonkey.jpg", cv2.IMREAD_GRAYSCALE)
-    myBlur = blurImage1(img,51)
-    cv2Blur = blurImage2(img, 51)
+    img = cv2.imread("pool_balls.jpeg", cv2.IMREAD_GRAYSCALE)
+    myBlur = blurImage1(img,37)
+    cv2Blur = blurImage2(img, 37)
 
     fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
     plt.gray()
