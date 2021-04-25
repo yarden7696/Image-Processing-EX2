@@ -38,6 +38,7 @@ def derivDemo():
     axes[0][1].set_title('Magnitude'),axes[0][1].imshow(magnitude)
     axes[1][0].set_title('Derivative X'),axes[1][0].imshow(im_derive_x)
     axes[1][1].set_title('Derivative Y'),axes[1][1].imshow(im_derive_y)
+    #axes[1][1].set_title('directions'), axes[1][1].imshow(directions)
     plt.show()
 
 
@@ -74,9 +75,9 @@ def edgeDemo():
 
 
 def blurDemo():
-    img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
-    myBlur = blurImage1(img,5)
-    cv2Blur = blurImage2(img, 5)
+    img = cv2.imread("codeMonkey.jpg", cv2.IMREAD_GRAYSCALE)
+    myBlur = blurImage1(img,51)
+    cv2Blur = blurImage2(img, 51)
 
     fig, axes = plt.subplots(1, 2)  # 1 row and 2 cols
     plt.gray()
@@ -90,8 +91,8 @@ def blurDemo():
 
 
 def houghDemo():
-    img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
-    lst = ex2_utils.houghCircle(img, 40, 100)
+    img = cv2.imread("coins.jpg", cv2.IMREAD_GRAYSCALE).astype(np.float32)
+    lst = ex2_utils.houghCircle(img, 50, 70)
     fig, axes = plt.subplots()
     plt.gray()
     fig.suptitle('houghCircle', fontsize=23)
