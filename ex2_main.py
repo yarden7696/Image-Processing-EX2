@@ -91,13 +91,14 @@ def blurDemo():
 
 def houghDemo():
     img = cv2.imread("boxman.jpg", cv2.IMREAD_GRAYSCALE)
-    list = ex2_utils.houghCircle(img, 40, 100)
+    lst = ex2_utils.houghCircle(img, 40, 100)
     fig, axes = plt.subplots()
+    plt.gray()
     fig.suptitle('houghCircle', fontsize=23)
-    axes.imshow(img, cmap="gray")
-    for i in list:
-        circle1 = plt.Circle((i[0], i[1]), i[2], color='r', fill=False)
-        axes.add_artist(circle1)
+    axes.imshow(img)
+    for i in lst:
+        c = plt.Circle((i[0], i[1]), i[2], color='r', fill=False)
+        axes.add_artist(c)
     plt.show()
 
 

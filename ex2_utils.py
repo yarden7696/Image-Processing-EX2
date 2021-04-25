@@ -255,43 +255,40 @@ def houghCircle(img:np.ndarray,min_radius:float,max_radius:float)->list:
     [(x,y,radius),(x,y,radius),...]
     """
 
-    # Do a canny edge detection
-    imgc  = cv2.Canny(img.astype(np.uint8), 100, 50)
-
-    # Get the deration matrix after sobel
-    div = np.arctan2(cv2.Sobel(img, -1, 0, 1), cv2.Sobel(img, -1, 1, 0))
-
-    tresh = 20
-    # 3D array of all to check all the radius from min to max
-    hough = np.zeros((imgc.shape[0], imgc.shape[1], max_radius - min_radius))
     list = []
+    imgCanny = cv2.Canny(img.astype(np.uint8), 100, 50)
 
-    # for every R is there is a circle in the image
-    for r in range(hough.shape[2]):
-        for x in range(0, imgc.shape[1]):
-            for y in range(0, imgc.shape[0]):
-                if imgc[y, x] != 0:
-                    try:
-                        # Will mark according to the gradient direction the front and rear points as centers of circles
-                        a1 = x + (r + min_radius) * np.cos(div[y, x])
-                        b1 = y + (r + min_radius) * np.sin(div[y, x])
-                        a2 = x - (r + min_radius) * np.cos(div[y, x])
-                        b2 = y - (r + min_radius) * np.sin(div[y, x])
-                        hough[int(a1), int(b1), r] += 1
-                        hough[int(a2), int(b2), r] += 1
+    # create an 3D matrix
+    hough_circle = np.zeros((imgCanny.shape[0], imgCanny.shape[1], max_radius - min_radius))
 
-                    except IndexError as e:
-                        pass
+    # checking all circles in the image
+    hough = help_houghCircle(hough_circle, imgCanny, img, min_radius)
 
-    # Check if the point is over the threshold and should mark as a center of ac circle
+    # if the point > threshold=20  it marked as an center of circle
     for r in range(hough.shape[2]):
         for x in range(0, img.shape[0]):
             for y in range(0, img.shape[1]):
-                if hough[x, y, r] > tresh:
+                if hough[x, y, r] > 20:
                     list.append((x, y, min_radius + r))
 
     return list
 
 
 
+""" Helper function that checks the all circles in the image """
+def help_houghCircle(hough_circle:np.ndarray, imgCanny:np.ndarray, img:np.ndarray, min_radius:float)->np.ndarray:
 
+    direction = np.arctan2(cv2.Sobel(img, -1, 0, 1), cv2.Sobel(img, -1, 1, 0))
+
+    for r in range(hough_circle.shape[2]):
+        for j in range(0, imgCanny.shape[1]):
+            for i in range(0, imgCanny.shape[0]):
+                if imgCanny[i, j] > 0 or imgCanny[i, j] < 0:
+                    try:
+                        rad = r + min_radius
+                        hough_circle[int(j + rad * np.cos(direction[i, j])), int(i + rad * np.sin(direction[i, j])), r] += 1
+                        hough_circle[int(j - rad * np.cos(direction[i, j])), int(i - rad * np.sin(direction[i, j])), r] += 1
+
+                    except IndexError as e:
+                        pass
+    return hough_circle
