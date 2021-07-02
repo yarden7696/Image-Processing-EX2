@@ -13,14 +13,14 @@ def conv1D(inSignal: np.ndarray, kernel1: np.ndarray) -> np.ndarray:
   """
     revKernel1 = kernel1[::-1]  # reverse to the kernel
     addZeros = np.zeros(kernel1.size - 1)  # num of zeros to add both sides of the signal
-    newSignal = np.append(addZeros, np.append(inSignal, addZeros))  # adding the zeros both of sides
+    newSignal = np.append(addZeros, np.append(inSignal, addZeros))  # adding the zeros both of sides of F
 
-    ans = np.zeros(inSignal.size + kernel1.size - 1)  # the res vector will be in this size
+    h = np.zeros(inSignal.size + kernel1.size - 1)  # the res vector will be in this size
 
-    for i in range(ans.size):
-        ans[i] = np.dot(newSignal[i: i + (kernel1.size - 1) + 1], revKernel1)
+    for i in range(h.size):
+        h[i] = np.dot(newSignal[i: i + (kernel1.size - 1) + 1], revKernel1)
 
-    return ans
+    return h
 
 
 def conv2D(inImage: np.ndarray, kernel2: np.ndarray) -> np.ndarray:
